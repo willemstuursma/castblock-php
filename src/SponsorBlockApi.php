@@ -24,7 +24,10 @@ class SponsorBlockApi
     public function __construct(ClientInterface $guzzle = null, CacheInterface $cache = null)
     {
         if ($guzzle === null) {
-            $guzzle = new Client();
+            $guzzle = new Client([
+                RequestOptions::CONNECT_TIMEOUT => 5,
+                RequestOptions::TIMEOUT => 5,
+            ]);
         }
 
         $this->guzzle = $guzzle;
