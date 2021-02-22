@@ -59,7 +59,7 @@ final class Segment
                     0 => $instance->start,
                     1 => $instance->end,
                 ],
-                "uuid" => $instance->uuid
+                "UUID" => $instance->uuid
             ] = $segment;
 
             $return[] = $instance;
