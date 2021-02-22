@@ -27,13 +27,6 @@ final class Segment
     private $end;
 
     /**
-     * Identifier (from Sponsorblock).
-     *
-     * @var string
-     */
-    private $uuid;
-
-    /**
      * @return self[]
      */
     public static function fromSponsorBlockResponse(string $videoId, ResponseInterface $response): array
@@ -59,7 +52,6 @@ final class Segment
                     0 => $instance->start,
                     1 => $instance->end,
                 ],
-                "UUID" => $instance->uuid
             ] = $segment;
 
             $return[] = $instance;
