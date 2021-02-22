@@ -174,9 +174,9 @@ class Worker
         return $status;
     }
 
-    private function sleep(float $due): void
+    private function sleep(float $seconds): void
     {
-        $microSeconds = round($due * 1e6);
+        $microSeconds = round($seconds * 1e6);
 
         usleep($microSeconds);
     }
