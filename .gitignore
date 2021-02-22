@@ -1,4 +1,6 @@
 /.idea/
+/box.phar
+/castblock-php.phar
 /composer.lock
 /composer.phar
 /go-chromecast

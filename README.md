@@ -7,6 +7,8 @@ Raspberry Pi or similar.
 
 Heavily inspired by [stephen304/castblock](https://github.com/stephen304/castblock).
 
+The sponsorship segments are provided by the [Sponsorblock](https://sponsor.ajay.app/) browser extension.
+
 ## Features
 
 * Automatically skip sponsorship segments in Youtube videos playing on Chromecast or Google Home mini devices.

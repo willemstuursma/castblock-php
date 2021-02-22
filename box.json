@@ -1,0 +1,9 @@
+{
+  "compression": "GZ",
+  "directories": [
+      "src/",
+      "vendor/"
+  ],
+  "main": "bin/castblock-php",
+  "output": "castblock-php.phar"
+}
