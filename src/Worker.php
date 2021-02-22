@@ -2,6 +2,7 @@
 
 namespace WillemStuursma\CastBlock;
 
+use GuzzleHttp\Exception\ConnectException;
 use Symfony\Component\Console\Output\OutputInterface;
 use WillemStuursma\CastBlock\ValueObjects\ChromeCast;
 use WillemStuursma\CastBlock\ValueObjects\Segment;
@@ -73,7 +74,15 @@ class Worker
             return;
         }
 
-        $segments = $this->sponsorBlock->getSegments($status->getVideoId());
+        try {
+            $segments = $this->sponsorBlock->getSegments($status->getVideoId());
+        } catch (ConnectException $e) {
+            /*
+             * Cannot retrieve segments from API now.
+             */
+            $this->output->writeln("[WARNING] Cannot retrieve segments from the API.");
+            return;
+        }
 
         foreach ($segments as $segment) {
             $this->output->writeln(

@@ -5,6 +5,7 @@ namespace WillemStuursma\CastBlock;
 use Cache\Adapter\PHPArray\ArrayCachePool;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\RequestOptions;
 use Psr\SimpleCache\CacheInterface;
 use WillemStuursma\CastBlock\ValueObjects\Segment;
@@ -43,6 +44,8 @@ class SponsorBlockApi
     }
 
     /**
+     * @throws ConnectException
+     *
      * @return Segment[]
      */
     public function getSegments(string $videoId): array
