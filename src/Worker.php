@@ -115,6 +115,14 @@ class Worker
             return;
         }
 
+        if ($status->getVideoId() !== $segment->getVideoId()) {
+            /*
+             * We've somehow changed to a different video, ignore this segment.
+             */
+            $this->output->writeln("{$chromeCast} is no longer playing {$segment->getVideoId()}.");
+            return;
+        }
+
         $due = $start - $position;
 
         $this->output->writeln(sprintf("Segment starts in %.02Fs.", $due));
