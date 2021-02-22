@@ -1,0 +1,26 @@
+{
+  "name": "willemstuursma/castblock",
+  "description": "Automatically skip integrated ads on youtube playing on chromecast",
+  "type": "project",
+  "license": "Apache-2.0",
+  "autoload": {
+    "psr-4": {
+      "WillemStuursma\\CastBlock\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WillemStuursma\\CastBlock\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^7.3",
+    "symfony/process": "^5.2",
+    "symfony/console": "^5.2",
+    "guzzlehttp/guzzle": "^7.2",
+    "cache/array-adapter": "^1.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  }
+}

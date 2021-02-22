@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php
+
+use WillemStuursma\CastBlock\Worker;
+
+require_once __DIR__ . "/../vendor/autoload.php";
+
+$output = new \Symfony\Component\Console\Output\ConsoleOutput();
+
+$worker = new Worker($output);
+$worker->run();
