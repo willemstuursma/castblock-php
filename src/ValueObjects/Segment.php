@@ -35,12 +35,16 @@ final class Segment
             return [];
         }
 
-        //[{"category":"sponsor","segment":[362.213504,424.946576],"UUID":"0541dea82f2c2a26756eecfed7df45aad5e32d6c1c5e2f788dfbe743ee548df2"}]
+        $decoded = \json_decode($response->getBody(), true);
 
-        $decoded = json_decode($response->getBody(), true);
+        return self::fromDecodedSegments($videoId, $decoded);
+    }
 
-        $return = [];
-
+    /**
+     * @return Segment[]
+     */
+    private static function fromDecodedSegments(string $videoId, array $decoded): array
+{
         foreach ($decoded as $segment) {
 
             $instance = new self();
@@ -58,6 +62,25 @@ final class Segment
         }
 
         return $return;
+    }
+
+    public static function fromMultiSponsorBlockResponses(string $videoId, ResponseInterface $response): array
+    {
+        if ($response->getStatusCode() === 404) {
+            return [];
+        }
+
+        $result = \json_decode($response->getBody(), true);
+
+        foreach ($result as $item) {
+            if ($item["videoID"] !== $videoId) {
+                continue;
+            }
+
+            return self::fromDecodedSegments($videoId, $item["segments"]);
+        }
+
+        return [];
     }
 
     public function getVideoId(): string

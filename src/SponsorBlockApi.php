@@ -52,7 +52,9 @@ class SponsorBlockApi
     {
         if (!$this->cache->has($videoId)) {
 
-            $url = "https://sponsor.ajay.app/api/skipSegments?videoID=".urlencode($videoId);
+            $sha256hash = substr(hash("sha256", $videoId), 0, 4);
+
+            $url = "https://sponsor.ajay.app/api/skipSegments/{$sha256hash}";
 
             $response = $this->guzzle->get(
                 $url,
@@ -61,9 +63,12 @@ class SponsorBlockApi
                 ]
             );
 
-            $value = Segment::fromSponsorBlockResponse($videoId, $response);
 
-            $this->cache->set($videoId, $value);
+            $segments = Segment::fromMultiSponsorBlockResponses($videoId, $response);
+
+            $this->cache->set($videoId, $segments);
+
+            return $segments;
         }
 
         return $this->cache->get($videoId);
