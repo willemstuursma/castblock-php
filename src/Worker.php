@@ -45,6 +45,11 @@ class Worker
     {
         $this->output->writeln("Starting castblock...");
 
+        $categories = [
+            SponsorblockCategory::SPONSOR(),
+            SponsorblockCategory::INTERACTION(),
+        ];
+
         while (true) {
 
             $chromeCasts = $this->listChromeCasts();
@@ -58,14 +63,18 @@ class Worker
             }
 
             foreach ($chromeCasts as $chromeCast) {
-                $this->skipSponsors($chromeCast);
+                $this->skipSponsors($chromeCast, $categories);
             }
 
             $this->sleep(2.5);
         }
     }
 
-    public function skipSponsors(ChromeCast $chromeCast): void
+    /**
+     * @param ChromeCast $chromeCast
+     * @param SponsorblockCategory[] $categories
+     */
+    private function skipSponsors(ChromeCast $chromeCast, array $categories): void
     {
         $status = $this->getChromeCastStatus($chromeCast);
 
@@ -75,7 +84,7 @@ class Worker
         }
 
         try {
-            $segments = $this->sponsorBlock->getSegments($status->getVideoId());
+            $segments = $this->sponsorBlock->getSegments($status->getVideoId(), $categories);
         } catch (ConnectException $e) {
             /*
              * Cannot retrieve segments from API now.

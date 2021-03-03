@@ -8,6 +8,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\RequestOptions;
 use Psr\SimpleCache\CacheInterface;
+use Webmozart\Assert\Assert;
 use WillemStuursma\CastBlock\ValueObjects\Segment;
 
 class SponsorBlockApi
@@ -44,17 +45,23 @@ class SponsorBlockApi
     }
 
     /**
+     * @param SponsorblockCategory[] $categories
+     *
      * @throws ConnectException
      *
      * @return Segment[]
      */
-    public function getSegments(string $videoId): array
+    public function getSegments(string $videoId, array $categories): array
     {
+        Assert::allIsInstanceOf($categories, SponsorblockCategory::class);
+
         if (!$this->cache->has($videoId)) {
 
             $sha256hash = substr(hash("sha256", $videoId), 0, 4);
 
-            $url = "https://sponsor.ajay.app/api/skipSegments/{$sha256hash}";
+            $categories = json_encode($categories);
+
+            $url = "https://sponsor.ajay.app/api/skipSegments/{$sha256hash}?categories=" . urlencode($categories);
 
             $response = $this->guzzle->get(
                 $url,

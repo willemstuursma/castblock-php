@@ -19,7 +19,9 @@
     "symfony/console": "^5.2",
     "guzzlehttp/guzzle": "^7.2",
     "cache/array-adapter": "^1.1",
-    "ext-json": "*"
+    "ext-json": "*",
+    "myclabs/php-enum": "^1.8",
+    "webmozart/assert": "^1.9"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5"
