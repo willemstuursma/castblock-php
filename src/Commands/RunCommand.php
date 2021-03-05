@@ -6,6 +6,7 @@ use GuzzleHttp\Exception\ConnectException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use WillemStuursma\CastBlock\ChromeCastConnector;
@@ -39,12 +40,42 @@ class RunCommand extends Command
      */
     private $sponsorBlock;
 
-    public function __construct(?string $name = null)
+    protected function initialize(InputInterface $input, OutputInterface $output)
     {
-        parent::__construct($name);
-
         $this->connector = new ChromeCastConnector();
         $this->sponsorBlock = new SponsorBlockApi();
+    }
+
+    protected function configure()
+    {
+        $this
+            ->setDescription("Run Castblock PHP")
+            ->setHelp("Runs Castblock PHP. Any sponsorship segments on Chromcasts will be skipped automatically.")
+            ->addOption(
+                "category",
+                "c",
+                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED,
+                "Which categories do you want to automatically skip?",
+                [SponsorblockCategory::INTERACTION()->getValue(), SponsorblockCategory::SPONSOR()->getValue()]
+            )
+        ;
+    }
+
+    /**
+     * @return SponsorblockCategory[]
+     */
+    private function getCategories(InputInterface $input): array
+    {
+        $selectedCategories = $input->getOption("category");
+
+        $categories = [];
+
+        foreach ($selectedCategories as $selectedCategory) {
+            $categories[] = SponsorblockCategory::from($selectedCategory);
+        }
+
+        return $categories;
+
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -52,10 +83,7 @@ class RunCommand extends Command
         $logger = new ConsoleLogger($output);
         $logger->debug("Starting CastBlock PHP...");
 
-        $categories = [
-            SponsorblockCategory::SPONSOR(),
-            SponsorblockCategory::INTERACTION(),
-        ];
+        $categories = $this->getCategories($input);
 
         while (true) {
 

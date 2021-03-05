@@ -29,9 +29,13 @@ Download the `castblock-php.phar` file from the Releases page.
 Run `php castblock-php.phar` on a device that is in the same network as your Chromecast device or 
 devices. 
 
-You can adjust the debugging verbosity by adding `-v`, `-vv` or `-vvv`.
-
 For example, you can install it as a service with systemd or run it in a screen.
+
+### Options
+
+* `--category`: Select which category to skip. Repeat multiple times to skip multiple categories. Default: `--category sponsor --category interaction`.
+
+You can adjust the debugging verbosity by adding `-v`, `-vv` or `-vvv`.
 
 ## Contributions
 
