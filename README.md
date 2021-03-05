@@ -27,7 +27,9 @@ Download the `castblock-php.phar` file from the Releases page.
 ## Usage
 
 Run `php castblock-php.phar` on a device that is in the same network as your Chromecast device or 
-devices.
+devices. 
+
+You can adjust the debugging verbosity by adding `-v`, `-vv` or `-vvv`.
 
 For example, you can install it as a service with systemd or run it in a screen.
 

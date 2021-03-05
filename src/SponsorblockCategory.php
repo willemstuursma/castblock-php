@@ -1,16 +1,16 @@
 <?php
 
-namespace WillemStuursma\Castblock;
+namespace WillemStuursma\CastBlock;
 
 use MyCLabs\Enum\Enum;
 
 /**
- * @method self SPONSOR()
- * @method self INTRO()
- * @method self OUTRO()
- * @method self INTERACTION()
- * @method self SELFPROMO()
- * @method self MUSIC_OFFTOPIC()
+ * @method static self SPONSOR()
+ * @method static self INTRO()
+ * @method static self OUTRO()
+ * @method static self INTERACTION()
+ * @method static self SELFPROMO()
+ * @method static self MUSIC_OFFTOPIC()
  */
 final class SponsorblockCategory extends Enum
 {

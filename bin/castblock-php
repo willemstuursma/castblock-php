@@ -1,13 +1,15 @@
 #!/usr/bin/env php
 <?php
+use Symfony\Component\Console\Application;
+use WillemStuursma\CastBlock\Commands;
 
-use WillemStuursma\CastBlock\Worker;
+require __DIR__."/../vendor/autoload.php";
 
-error_reporting(E_ALL);
+$application = new Application();
 
-require_once __DIR__ . "/../vendor/autoload.php";
+$runCommand = new Commands\RunCommand();
 
-$output = new \Symfony\Component\Console\Output\ConsoleOutput();
+$application->add($runCommand);
+$application->setDefaultCommand($runCommand->getName());
 
-$worker = new Worker($output);
-$worker->run();
+$application->run();
