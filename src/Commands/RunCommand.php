@@ -3,13 +3,14 @@
 namespace WillemStuursma\CastBlock\Commands;
 
 use GuzzleHttp\Exception\ConnectException;
-use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use WillemStuursma\CastBlock\ChromeCastConnector;
+use WillemStuursma\CastBlock\ChromecastsFinder;
 use WillemStuursma\CastBlock\SponsorBlockApi;
 use WillemStuursma\CastBlock\SponsorblockCategory;
 use WillemStuursma\CastBlock\ValueObjects\ChromeCast;
@@ -18,6 +19,8 @@ use WillemStuursma\CastBlock\ValueObjects\Status;
 
 class RunCommand extends Command
 {
+    use LoggerAwareTrait;
+
     protected static $defaultName = 'app:run';
 
     /**
@@ -40,17 +43,24 @@ class RunCommand extends Command
      */
     private $sponsorBlock;
 
+    /**
+     * @var ChromecastsFinder
+     */
+    private $castsFinder;
+
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->connector = new ChromeCastConnector();
         $this->sponsorBlock = new SponsorBlockApi();
+        $this->logger = new ConsoleLogger($output);
+        $this->castsFinder = new ChromecastsFinder($this->logger, $this->connector);
     }
 
     protected function configure()
     {
         $this
-            ->setDescription("Run Castblock PHP")
-            ->setHelp("Runs Castblock PHP. Any sponsorship segments on Chromcasts will be skipped automatically.")
+            ->setDescription("Run CastBlock PHP")
+            ->setHelp("Runs CastBlock PHP. Any sponsorship segments on Chromecasts will be skipped automatically.")
             ->addOption(
                 "category",
                 "c",
@@ -80,28 +90,23 @@ class RunCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $logger = new ConsoleLogger($output);
-        $logger->debug("Starting CastBlock PHP...");
+        $this->logger->debug("Starting CastBlock PHP...");
 
         $categories = $this->getCategories($input);
 
         while (true) {
 
-            $chromeCasts = $this->listChromeCasts($logger);
+            $chromeCasts = $this->castsFinder->listChromeCasts();
 
-            if (count($chromeCasts) === 0) {
-                /*
-                 * No Chromecasts found, idle a bit.
-                 */
-                $this->sleep(10.0);
-                continue;
-            }
+            $found = 0;
 
             foreach ($chromeCasts as $chromeCast) {
-                $this->skipSponsors($chromeCast, $categories, $logger);
+                $found++;
+                $this->logger->info("Found {$chromeCast->getDevice()} \"{$chromeCast->getDeviceName()}\" at {$chromeCast->getAddress()}.");
+                $this->skipSponsors($chromeCast, $categories);
             }
 
-            $this->sleep(2.5);
+            $this->sleep($found > 0 ? 2.5 : 10.0);
         }
 
         return Command::SUCCESS;
@@ -112,12 +117,12 @@ class RunCommand extends Command
      * @param ChromeCast $chromeCast
      * @param SponsorblockCategory[] $categories
      */
-    private function skipSponsors(ChromeCast $chromeCast, array $categories, LoggerInterface $logger): void
+    private function skipSponsors(ChromeCast $chromeCast, array $categories): void
     {
-        $status = $this->getChromeCastStatus($chromeCast, $logger);
+        $status = $this->getChromeCastStatus($chromeCast);
 
         if (!$status->isPlayingYoutube()) {
-            $logger->debug("{$chromeCast} is not playing Youtube.");
+            $this->logger->debug("{$chromeCast} is not playing Youtube.");
             return;
         }
 
@@ -127,18 +132,18 @@ class RunCommand extends Command
             /*
              * Cannot retrieve segments from API now.
              */
-            $logger->error("Cannot retrieve segments from the Sponsorblock API.");
+            $this->logger->error("Cannot retrieve segments from the Sponsorblock API.");
             return;
         }
 
         if (count($segments) === 0) {
-            $logger->info("No segments found for video {$status->getVideoId()}.");
+            $this->logger->info("No segments found for video {$status->getVideoId()}.");
             return;
         }
 
 
         foreach ($segments as $segment) {
-            $logger->debug(
+            $this->logger->debug(
                 sprintf("Found %.02Fs {$segment->getCategory()} segment from %.02Fs to %.2Fs.",
                     $segment->getEnd() - $segment->getStart(),
                     $segment->getStart(),
@@ -146,11 +151,11 @@ class RunCommand extends Command
                 )
             );
 
-            $this->handleSponsorshipSegment($chromeCast, $status, $segment, $logger);
+            $this->handleSponsorshipSegment($chromeCast, $status, $segment);
         }
     }
 
-    private function handleSponsorshipSegment(ChromeCast $chromeCast, Status $status, Segment $segment, LoggerInterface $logger): void
+    private function handleSponsorshipSegment(ChromeCast $chromeCast, Status $status, Segment $segment): void
     {
         $position = $status->getPosition();
 
@@ -163,7 +168,7 @@ class RunCommand extends Command
             /*
              * Segment is too short to skip.
              */
-            $logger->debug("Segment is only {$duration}s, too short to skip.");
+            $this->logger->debug("Segment is only {$duration}s, too short to skip.");
             return;
         }
 
@@ -173,7 +178,7 @@ class RunCommand extends Command
             /*
              * We've already passed this segment.
              */
-            $logger->debug("Segment already (or almost) over, not skipping.");
+            $this->logger->debug("Segment already (or almost) over, not skipping.");
             return;
         }
 
@@ -181,16 +186,16 @@ class RunCommand extends Command
             /*
              * We've somehow changed to a different video, ignore this segment.
              */
-            $logger->debug("{$chromeCast} is no longer playing {$segment->getVideoId()}.");
+            $this->logger->debug("{$chromeCast} is no longer playing {$segment->getVideoId()}.");
             return;
         }
 
         $due = $start - $position;
 
-        $logger->info(sprintf("Segment starts in %.02Fs.", $due));
+        $this->logger->info(sprintf("Segment starts in %.02Fs.", $due));
 
         if ($due > 10) {
-            $logger->debug("Not skipping now, coming back later.");
+            $this->logger->debug("Not skipping now, coming back later.");
             return;
         }
 
@@ -198,13 +203,13 @@ class RunCommand extends Command
             /*
              * $due could be 0 or we could be in the middle of the segment.
              */
-            $logger->info(sprintf("Waiting %.2Fs for segment to start...", $due));
+            $this->logger->info(sprintf("Waiting %.2Fs for segment to start...", $due));
             $this->sleep($due);
         }
 
         $fastForwardTo = round($end); // We'll accept skipping 0-0.5s of genuine content.
 
-        $logger->info("Fast forwarding to end of segment at {$fastForwardTo}s.");
+        $this->logger->info("Fast forwarding to end of segment at {$fastForwardTo}s.");
 
         $this->connector->seekTo($chromeCast, $fastForwardTo);
 
@@ -214,31 +219,12 @@ class RunCommand extends Command
         $this->sleep(1);
     }
 
-    /**
-     * Update the list of Chromecasts in the network, every few seconds or so.
-     *
-     * @return ChromeCast[]
-     */
-    private function listChromeCasts(LoggerInterface $logger): array
-    {
-        if ($this->listLastUpdated + 15 < time()) {
-            $this->chromeCasts = $this->connector->listChromeCasts();
-            $this->listLastUpdated = time();
-
-            foreach ($this->chromeCasts as $chromeCast) {
-                $logger->info("Found {$chromeCast->getDevice()} \"{$chromeCast->getDeviceName()}\" at {$chromeCast->getAddress()}.");
-            }
-        }
-
-        return $this->chromeCasts;
-    }
-
-    private function getChromeCastStatus(ChromeCast $chromeCast, LoggerInterface $logger): Status
+    private function getChromeCastStatus(ChromeCast $chromeCast): Status
     {
         $status = $this->connector->getStatus($chromeCast);
 
         if ($status->isPlayingYoutube()) {
-            $logger->debug(sprintf("{$chromeCast} is playing video {$status->getVideoId()} at position %.02Fs.", $status->getPosition()));
+            $this->logger->debug(sprintf("{$chromeCast} is playing video {$status->getVideoId()} at position %.02Fs.", $status->getPosition()));
         }
 
         return $status;

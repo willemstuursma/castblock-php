@@ -27,18 +27,22 @@ class ChromeCastConnector
     }
 
     /**
-     * @return ChromeCast[]
+     * @return ChromeCast[]|\Generator
      */
-    public function listChromeCasts(): array
+    public function listChromeCasts(): \Generator
     {
         $process = new Process([
             $this->goChromecastPath,
             'ls'
         ]);
 
-        $process->mustRun();
+        $process->start();
 
-        return ChromeCast::fromGoChromeCastOutput($process->getOutput());
+        $iterator = $process->getIterator($process::ITER_SKIP_ERR | $process::ITER_KEEP_OUTPUT);
+
+        foreach ($iterator as $line) {
+            yield from ChromeCast::fromGoChromeCastOutput($line);
+        }
     }
 
     public function getStatus(ChromeCast $chromeCast): Status
