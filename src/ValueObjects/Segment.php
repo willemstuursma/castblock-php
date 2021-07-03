@@ -45,6 +45,8 @@ final class Segment
      */
     private static function fromDecodedSegments(string $videoId, array $decoded): array
 {
+        $return = [];
+
         foreach ($decoded as $segment) {
 
             $instance = new self();
