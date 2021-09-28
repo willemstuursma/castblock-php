@@ -2,6 +2,7 @@
 
 namespace WillemStuursma\CastBlock;
 
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 use WillemStuursma\CastBlock\ValueObjects\ChromeCast;
@@ -45,6 +46,9 @@ class ChromeCastConnector
         }
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     public function getStatus(ChromeCast $chromeCast): Status
     {
         $process = $this->createGoChromeCastProcess($chromeCast, [

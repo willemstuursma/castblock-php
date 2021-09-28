@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use WillemStuursma\CastBlock\ChromeCastConnector;
 use WillemStuursma\CastBlock\ChromecastsFinder;
 use WillemStuursma\CastBlock\SponsorBlockApi;
@@ -119,7 +120,15 @@ class RunCommand extends Command
      */
     private function skipSponsors(ChromeCast $chromeCast, array $categories): void
     {
-        $status = $this->getChromeCastStatus($chromeCast);
+        try {
+            $status = $this->getChromeCastStatus($chromeCast);
+        } catch (ProcessFailedException $e) {
+            $this->logger->error("Failed to get the status of {$chromeCast}: {$e->getMessage()}", [
+                "exception" => $e,
+            ]);
+
+            return;
+        }
 
         if (!$status->isPlayingYoutube()) {
             $this->logger->debug("{$chromeCast} is not playing Youtube.");
@@ -219,6 +228,9 @@ class RunCommand extends Command
         $this->sleep(1);
     }
 
+    /**
+     * @throws ProcessFailedException
+     */
     private function getChromeCastStatus(ChromeCast $chromeCast): Status
     {
         $status = $this->connector->getStatus($chromeCast);
