@@ -121,7 +121,7 @@ class RunCommand extends Command
     private function skipSponsors(ChromeCast $chromeCast, array $categories): void
     {
         try {
-            $status = $this->getChromeCastStatus($chromeCast);
+            $status = $this->connector->getStatus($chromeCast);
         } catch (ProcessFailedException $e) {
             $this->logger->error("Failed to get the status of {$chromeCast}: {$e->getMessage()}", [
                 "exception" => $e,
@@ -134,6 +134,8 @@ class RunCommand extends Command
             $this->logger->debug("{$chromeCast} is not playing Youtube.");
             return;
         }
+
+        $this->logger->debug(sprintf("{$chromeCast} is playing video {$status->getVideoId()} at position %.02Fs.", $status->getPosition()));
 
         try {
             $segments = $this->sponsorBlock->getSegments($status->getVideoId(), $categories);
@@ -226,20 +228,6 @@ class RunCommand extends Command
          * Make sure next status call gets a position past the segment.
          */
         $this->sleep(1);
-    }
-
-    /**
-     * @throws ProcessFailedException
-     */
-    private function getChromeCastStatus(ChromeCast $chromeCast): Status
-    {
-        $status = $this->connector->getStatus($chromeCast);
-
-        if ($status->isPlayingYoutube()) {
-            $this->logger->debug(sprintf("{$chromeCast} is playing video {$status->getVideoId()} at position %.02Fs.", $status->getPosition()));
-        }
-
-        return $status;
     }
 
     private function sleep(float $seconds): void
