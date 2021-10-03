@@ -76,7 +76,7 @@ class ChromeCastConnector
     {
         [$address, $port] = explode(":", $chromeCast->getAddress());
 
-        $process = new Process(array_merge([
+        return new Process(array_merge([
             $this->goChromecastPath,
         ], $command, [
             '--addr',
@@ -84,7 +84,5 @@ class ChromeCastConnector
             '--port',
             $port
         ]));
-
-        return $process;
     }
 }
