@@ -155,7 +155,7 @@ class RunCommand extends Command
 
         foreach ($segments as $segment) {
             $this->logger->debug(
-                sprintf("Found %.02Fs {$segment->getCategory()} segment from %.02Fs to %.2Fs.",
+                sprintf("Found %.02Fs segment from %.02Fs to %.2Fs.",
                     $segment->getEnd() - $segment->getStart(),
                     $segment->getStart(),
                     $segment->getEnd()

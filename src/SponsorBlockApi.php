@@ -70,7 +70,6 @@ class SponsorBlockApi
                 ]
             );
 
-
             $segments = Segment::fromMultiSponsorBlockResponses($videoId, $response);
 
             $this->cache->set($videoId, $segments);

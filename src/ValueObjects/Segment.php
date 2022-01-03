@@ -12,11 +12,6 @@ final class Segment
     private $videoId;
 
     /**
-     * @var string
-     */
-    private $category;
-
-    /**
      * @var float
      */
     private $start;
@@ -26,41 +21,29 @@ final class Segment
      */
     private $end;
 
-    /**
-     * @return self[]
-     */
-    public static function fromSponsorBlockResponse(string $videoId, ResponseInterface $response): array
+    public function __construct(string $videoId, float $start, float $end)
     {
-        if ($response->getStatusCode() === 404) {
-            return [];
-        }
-
-        $decoded = \json_decode($response->getBody(), true);
-
-        return self::fromDecodedSegments($videoId, $decoded);
+        $this->videoId = $videoId;
+        $this->start = $start;
+        $this->end = $end;
     }
 
     /**
      * @return Segment[]
      */
     private static function fromDecodedSegments(string $videoId, array $decoded): array
-{
+    {
         $return = [];
 
         foreach ($decoded as $segment) {
-
-            $instance = new self();
-            $instance->videoId = $videoId;
-
             [
-                "category" => $instance->category,
                 "segment" => [
-                    0 => $instance->start,
-                    1 => $instance->end,
+                    0 => $start,
+                    1 => $end,
                 ],
             ] = $segment;
 
-            $return[] = $instance;
+            $return[] = new self($videoId, $start, $end);
         }
 
         return $return;
@@ -88,11 +71,6 @@ final class Segment
     public function getVideoId(): string
     {
         return $this->videoId;
-    }
-
-    public function getCategory(): string
-    {
-        return $this->category;
     }
 
     public function getStart(): float
