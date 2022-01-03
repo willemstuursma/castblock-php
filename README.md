@@ -14,7 +14,7 @@ The sponsorship segments are provided by the [Sponsorblock](https://sponsor.ajay
 * Automatically skip sponsorship segments in Youtube videos playing on Chromecast or Google Home mini devices.
 * Detects new Chromecasts in your network, supports multiple Chromecasts.
 * Protect your privacy and your unlisted videos by not sharing video IDs with the Sponsorblock API. 
-* Aims to have precise skipping of segments.
+* Aims to have precise skipping of segments and prevent unnecessary skipping.
 * Aims to have low CPU usage.
 
 ## Installation

@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use WillemStuursma\CastBlock\ChromeCastConnector;
 use WillemStuursma\CastBlock\ChromecastsFinder;
+use WillemStuursma\CastBlock\SegmentMerger;
 use WillemStuursma\CastBlock\SponsorBlockApi;
 use WillemStuursma\CastBlock\SponsorblockCategory;
 use WillemStuursma\CastBlock\ValueObjects\ChromeCast;
@@ -45,6 +46,11 @@ class RunCommand extends Command
     private $sponsorBlock;
 
     /**
+     * @var SegmentMerger
+     */
+    private $segmentMerger;
+
+    /**
      * @var ChromecastsFinder
      */
     private $castsFinder;
@@ -53,6 +59,7 @@ class RunCommand extends Command
     {
         $this->connector = new ChromeCastConnector();
         $this->sponsorBlock = new SponsorBlockApi();
+        $this->segmentMerger = new SegmentMerger();
         $this->logger = new ConsoleLogger($output);
         $this->castsFinder = new ChromecastsFinder($this->logger, $this->connector);
     }
@@ -152,6 +159,7 @@ class RunCommand extends Command
             return;
         }
 
+        $segments = $this->segmentMerger->merge(...$segments);
 
         foreach ($segments as $segment) {
             $this->logger->debug(

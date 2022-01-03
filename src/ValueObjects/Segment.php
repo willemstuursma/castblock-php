@@ -68,6 +68,15 @@ final class Segment
         return [];
     }
 
+    public static function merge(Segment $first, Segment $second): self
+    {
+        return new self(
+            $first->getVideoId(),
+            min($first->getStart(), $second->getStart()),
+            max($first->getEnd(), $second->getEnd())
+        );
+    }
+
     public function getVideoId(): string
     {
         return $this->videoId;
