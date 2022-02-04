@@ -1,5 +1,9 @@
 # Example systemd service file for castblock-php
 
+# Installation either copy the phar to /usr/bin/ first, or modify the ExecStart line to refer to the location of the phar
+# $ cp castblock-php.phar /usr/bin/
+# copy this castblock.service file into your services directory (on Raspbian, something like /etc/systemd/system/castblock.service )
+
 # Usage: 
 # -- Start service --
 # systemctl start castblock
@@ -16,7 +20,6 @@
 After=network.target
 
 [Service]
-# cp castblock-php.phar to /usr/bin/ before this
 ExecStart=php /usr/bin/castblock-php.phar -vv
 DynamicUser=yes
 Restart=always
