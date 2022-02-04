@@ -1,0 +1,27 @@
+# Example systemd service file for castblock-php
+
+# Usage: 
+# -- Start service --
+# systemctl start castblock
+# -- Stop service --
+# systemctl stop castblock
+# -- Enable run at startup and restarts --
+# systemctl enable castblock
+# -- View Status --
+# systemctl -l status castblock
+# -- View Logs --
+# sudo journalctl -u
+
+[Unit]
+After=network.target
+
+[Service]
+# cp castblock-php.phar to /usr/bin/ before this
+ExecStart=php /usr/bin/castblock-php.phar -vv
+DynamicUser=yes
+Restart=always
+StandardOutput=inherit
+StandardError=inherit
+
+[Install]
+WantedBy=multi-user.target
