@@ -32,7 +32,7 @@ devices.
 For example, you can install it as a service with systemd or run it within `screen`.
 
 By setting up a systemd service, you can have systemd automatically start castblock-php on system startup, persist the logs, monitor the process, and restart castblock-php automatically if needed.
-You can use [castblock.service](castblock.service) as an example systemd service. Documentation for how to use [the service file](castblock.service) is within [the file](castblock.service) itself.
+You can use [castblock.service](castblock.service) as an example systemd service. Documentation for how to install & use [the service file](castblock.service) is within [the file](castblock.service) itself.
 
 ### Options
 
