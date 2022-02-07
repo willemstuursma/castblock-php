@@ -4,7 +4,7 @@
 # $ cp castblock-php.phar /usr/bin/
 # copy this castblock.service file into your services directory (on Raspbian, something like /etc/systemd/system/castblock.service )
 
-# Usage: 
+# Usage:
 # -- Start service --
 # systemctl start castblock
 # -- Stop service --
