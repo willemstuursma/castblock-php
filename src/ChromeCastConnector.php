@@ -48,6 +48,7 @@ class ChromeCastConnector
 
     /**
      * @throws ProcessFailedException
+     * @throws Exception
      */
     public function getStatus(ChromeCast $chromeCast): Status
     {

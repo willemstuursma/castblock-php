@@ -48,7 +48,7 @@ class ChromecastsFinder
             $this->logger->info("Checking for new Chromecasts in local network...");
 
             $this->cache = [];
-            $this->lastUpdated = microtime(true);
+            $this->lastUpdated = \microtime(true);
 
             $chromecasts = $this->castConnector->listChromeCasts();
 
