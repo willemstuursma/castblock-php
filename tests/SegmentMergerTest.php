@@ -17,7 +17,37 @@ class SegmentMergerTest extends TestCase
     {
         parent::setUp();
 
-        $this->merger = new SegmentMerger();
+        $this->merger = new SegmentMerger(3);
+    }
+
+    public function testSegmentsCloseTogetherAreMerged()
+    {
+        /** @var Segment[] $segments */
+        $segments = [
+            new Segment("IdgCkUJNTYs", 10.0, 15.0),
+            new Segment("IdgCkUJNTYs", 16.0, 18.0),
+        ];
+
+        $merged = $this->merger->merge(...$segments);
+
+        $expected = [
+            new Segment("IdgCkUJNTYs", 10.0, 18.0),
+        ];
+
+        $this->assertEquals($expected, $merged);
+    }
+
+    public function testSegmentsNotCloseTogetherAreNotMerged()
+    {
+        /** @var Segment[] $segments */
+        $segments = [
+            new Segment("IdgCkUJNTYs", 10.0, 15.0),
+            new Segment("IdgCkUJNTYs", 22.0, 24.0),
+        ];
+
+        $merged = $this->merger->merge(...$segments);
+
+        $this->assertEquals($segments, $merged);
     }
 
     public function testSegmentsAreMerged()

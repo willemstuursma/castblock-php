@@ -22,6 +22,8 @@ class RunCommand extends Command
 {
     use LoggerAwareTrait;
 
+    private const MINIMUM_SEGMENT_LENGTH_SECONDS = 3;
+
     protected static $defaultName = 'app:run';
 
     /**
@@ -58,7 +60,7 @@ class RunCommand extends Command
     {
         $this->connector = new ChromeCastConnector();
         $this->sponsorBlock = new SponsorBlockApi();
-        $this->segmentMerger = new SegmentMerger();
+        $this->segmentMerger = new SegmentMerger(self::MINIMUM_SEGMENT_LENGTH_SECONDS);
         $this->logger = new ConsoleLogger($output);
         $this->castsFinder = new ChromecastsFinder($this->logger, $this->connector);
     }
@@ -182,7 +184,7 @@ class RunCommand extends Command
 
         $duration = $end - $start;
 
-        if ($duration <= 3) {
+        if ($duration <= self::MINIMUM_SEGMENT_LENGTH_SECONDS) {
             /*
              * Segment is too short to skip.
              */
@@ -192,7 +194,7 @@ class RunCommand extends Command
 
         // e.g. end = 250, position = 249
 
-        if ($position > ($end - 3)) {
+        if ($position > ($end - self::MINIMUM_SEGMENT_LENGTH_SECONDS)) {
             /*
              * We've already passed this segment.
              */
