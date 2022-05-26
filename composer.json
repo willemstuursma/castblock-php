@@ -15,8 +15,8 @@
   },
   "require": {
     "php": "^7.1 || ^8.0",
-    "symfony/process": "^5.2",
-    "symfony/console": "^5.2",
+    "symfony/process": "^5.4",
+    "symfony/console": "^5.4",
     "guzzlehttp/guzzle": "^7.2",
     "cache/array-adapter": "^1.1",
     "ext-json": "*",
