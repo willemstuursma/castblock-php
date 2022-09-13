@@ -20,6 +20,7 @@ class ChromeCastConnector
         $executableFinder = new ExecutableFinder();
         $this->goChromecastPath = $executableFinder->find('go-chromecast', null, [
             dirname(__DIR__),
+            getcwd(),
         ]);
 
         if ($this->goChromecastPath === null) {
