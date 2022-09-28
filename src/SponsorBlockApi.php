@@ -59,7 +59,11 @@ class SponsorBlockApi
 
         if (!$this->cache->has($videoId)) {
 
-            $sha256hash = substr(hash("sha256", $videoId), 0, 4);
+            /*
+             * We want to be fairly specific which video we want. It is not necessary to send the shortest possible
+             * prefix - we just want to make sure we don't leak videoIds of unlisted videos.
+             */
+            $sha256hash = substr(hash("sha256", $videoId), 0, 8);
 
             $categories = json_encode($categories); // ["intro", "sponsor"]
 

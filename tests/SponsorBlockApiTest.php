@@ -322,7 +322,7 @@ final class SponsorBlockApiTest extends \PHPUnit\Framework\TestCase
 
         $this->httpClient->expects($this->once())
             ->method("get")
-            ->with("https://sponsor.ajay.app/api/skipSegments/eac5?categories=%5B%22interaction%22%2C%22sponsor%22%5D")
+            ->with("https://sponsor.ajay.app/api/skipSegments/eac59d49?categories=%5B%22interaction%22%2C%22sponsor%22%5D")
             ->willReturn($response);
 
         $segments = $this->sponsorBlock->getSegments($videoId, [
