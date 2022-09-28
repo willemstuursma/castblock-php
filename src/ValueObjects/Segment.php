@@ -55,7 +55,13 @@ final class Segment
             return [];
         }
 
-        $result = \json_decode($response->getBody(), true);
+        $responseBody = $response->getBody()->__toString();
+
+        $result = \json_decode($responseBody, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \Exception("Invalid JSON (" . json_last_error_msg() . "): \"{$responseBody}\"");
+        }
 
         foreach ($result as $item) {
             if ($item["videoID"] !== $videoId) {

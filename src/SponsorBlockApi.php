@@ -55,11 +55,13 @@ class SponsorBlockApi
     {
         Assert::allIsInstanceOf($categories, SponsorblockCategory::class);
 
+        $categories = array_values($categories);
+
         if (!$this->cache->has($videoId)) {
 
             $sha256hash = substr(hash("sha256", $videoId), 0, 4);
 
-            $categories = json_encode($categories);
+            $categories = json_encode($categories); // ["intro", "sponsor"]
 
             $url = "https://sponsor.ajay.app/api/skipSegments/{$sha256hash}?categories=" . urlencode($categories);
 
@@ -69,6 +71,10 @@ class SponsorBlockApi
                     RequestOptions::HTTP_ERRORS => false,
                 ]
             );
+
+            if ($response->getStatusCode() === 400) {
+                throw new Exception($response->getBody()->__toString());
+            }
 
             $segments = Segment::fromMultiSponsorBlockResponses($videoId, $response);
 
