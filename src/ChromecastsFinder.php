@@ -4,6 +4,7 @@ namespace WillemStuursma\CastBlock;
 
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use WillemStuursma\CastBlock\ValueObjects\ChromeCast;
 
 class ChromecastsFinder
@@ -39,7 +40,7 @@ class ChromecastsFinder
     /**
      * Update the list of Chromecasts in the network, every few seconds or so.
      *
-     * @return ChromeCast[]
+     * @return \Generator<ChromeCast>
      */
     public function listChromeCasts(): \Generator
     {
@@ -47,17 +48,29 @@ class ChromecastsFinder
 
             $this->logger->info("Checking for new Chromecasts in local network...");
 
+            try {
+                $devices = $this->castConnector->listChromeCasts();
+            } catch (ProcessTimedOutException $exception) {
+                /*
+                 * Process timed out, log exception and continue.
+                 */
+                $this->logger->error("Failed listing Chromecasts: {$exception->getMessage()}", ["exception" => $exception]);
+                yield from $this->cache;
+                return;
+            }
+
             $this->cache = [];
             $this->lastUpdated = \microtime(true);
 
-            $chromecasts = $this->castConnector->listChromeCasts();
-
-            foreach ($chromecasts as $chromecast) {
-                $this->cache[] = $chromecast;
-
-                yield $chromecast;
+            foreach ($devices as $device) {
+                /*
+                 * yield one by one as there can be some time between discovering multiple Chromecasts.
+                 */
+                $this->cache[] = $device;
+                yield $device;
             }
 
+            return;
         }
 
         yield from $this->cache;

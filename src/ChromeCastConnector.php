@@ -3,6 +3,7 @@
 namespace WillemStuursma\CastBlock;
 
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 use WillemStuursma\CastBlock\ValueObjects\ChromeCast;
@@ -30,6 +31,7 @@ class ChromeCastConnector
 
     /**
      * @return ChromeCast[]|\Generator
+     * @throws ProcessTimedOutException
      */
     public function listChromeCasts(): \Generator
     {
