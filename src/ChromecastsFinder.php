@@ -48,26 +48,27 @@ class ChromecastsFinder
 
             $this->logger->info("Checking for new Chromecasts in local network...");
 
+            $devices = $this->castConnector->listChromeCasts();
+
+            $oldCache = $this->cache;
+
+            $this->cache = [];
+            $this->lastUpdated = \microtime(true);
+
             try {
-                $devices = $this->castConnector->listChromeCasts();
+                foreach ($devices as $device) {
+                    /*
+                     * yield one by one as there can be some time between discovering multiple Chromecasts.
+                     */
+                    $this->cache[] = $device;
+                    yield $device;
+                }
             } catch (ProcessTimedOutException $exception) {
                 /*
                  * Process timed out, log exception and continue.
                  */
                 $this->logger->error("Failed listing Chromecasts: {$exception->getMessage()}", ["exception" => $exception]);
-                yield from $this->cache;
-                return;
-            }
-
-            $this->cache = [];
-            $this->lastUpdated = \microtime(true);
-
-            foreach ($devices as $device) {
-                /*
-                 * yield one by one as there can be some time between discovering multiple Chromecasts.
-                 */
-                $this->cache[] = $device;
-                yield $device;
+                yield from $oldCache;
             }
 
             return;
